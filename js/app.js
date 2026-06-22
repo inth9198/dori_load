@@ -20,6 +20,11 @@
   var $banner = document.getElementById("banner");
   var $mapEl = document.getElementById("map");
   var $mapPlaceholder = document.getElementById("map-placeholder");
+  var $layout = document.getElementById("layout");
+  var $viewToggle = document.getElementById("view-toggle");
+
+  // 좁은 화면(모바일 토글 동작 기준). UA 기반 isMobile()(딥링크용)과 별개.
+  function isNarrow() { return window.innerWidth < 880; }
 
   var state = {
     filter: "all",
@@ -274,15 +279,23 @@
 
     // 첫 렌더에서 한 번만 모든 핀이 보이도록 화면 맞춤
     if (!boundsFitted && points.length) {
-      if (points.length === 1) {
-        mapObj.setCenter(points[0]);
-        mapObj.setLevel(5);
-      } else {
-        var bounds = new kakao.maps.LatLngBounds();
-        points.forEach(function (p) { bounds.extend(p); });
-        mapObj.setBounds(bounds);
-      }
+      fitToMarkers();
       boundsFitted = true;
+    }
+  }
+
+  // 현재 마커들이 모두 보이도록 화면 맞춤 (1개면 적당히 확대)
+  function fitToMarkers() {
+    if (!mapObj) return;
+    var pts = Object.keys(markers).map(function (id) { return markers[id].getPosition(); });
+    if (!pts.length) return;
+    if (pts.length === 1) {
+      mapObj.setCenter(pts[0]);
+      mapObj.setLevel(5);
+    } else {
+      var bounds = new kakao.maps.LatLngBounds();
+      pts.forEach(function (p) { bounds.extend(p); });
+      mapObj.setBounds(bounds);
     }
   }
 
@@ -306,6 +319,35 @@
     if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (panTo && markers[id]) {
       mapObj.panTo(markers[id].getPosition());
+    }
+  }
+
+  function getById(id) {
+    return getWorkingData().find(function (x) { return x.id === id; });
+  }
+
+  // 모바일 목록/지도 토글. 지도 표시 시 카카오맵 relayout 후 핀 맞춤(또는 특정 핀 포커스).
+  function setView(view, focusId) {
+    if (!$layout) return;
+    $layout.dataset.view = view;
+    if ($viewToggle) {
+      Array.prototype.forEach.call($viewToggle.children, function (b) {
+        b.classList.toggle("active", b.dataset.view === view);
+      });
+    }
+    if (view === "map" && mapObj) {
+      // 숨겨졌다 보이면 지도 크기 재계산이 필요함
+      setTimeout(function () {
+        mapObj.relayout();
+        if (focusId && markers[focusId]) {
+          mapObj.setLevel(4);
+          mapObj.panTo(markers[focusId].getPosition());
+          var r = getById(focusId);
+          if (r) openInfo(r, markers[focusId]);
+        } else {
+          fitToMarkers();
+        }
+      }, 60);
     }
   }
 
@@ -664,13 +706,29 @@
         if (act === "route") { openNaverRoute(r); return; }
         if (act === "edit") { openForm(r); return; }
       }
-      // 카드 본문 클릭 → 지도 이동 + 하이라이트
-      selectRestaurant(id, true);
-      if (markers[id]) openInfo(r, markers[id]);
+      // 카드 본문 클릭 → 하이라이트 + 지도로 이동
+      if (isNarrow()) {
+        // 모바일: 지도 뷰로 전환하면서 해당 핀 포커스
+        selectRestaurant(id, false);
+        setView("map", id);
+      } else {
+        selectRestaurant(id, true);
+        if (markers[id]) openInfo(r, markers[id]);
+      }
     });
 
-    // 추가 버튼
+    // 추가 버튼 (데스크톱 툴바 + 모바일 FAB)
     document.getElementById("add-btn").addEventListener("click", function () { openForm(null); });
+    var fab = document.getElementById("fab");
+    if (fab) fab.addEventListener("click", function () { openForm(null); });
+
+    // 목록/지도 토글 (모바일)
+    if ($viewToggle) {
+      $viewToggle.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-view]");
+        if (b) setView(b.dataset.view);
+      });
+    }
 
     // 모달 닫기
     Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (el) {
@@ -773,7 +831,8 @@
   // 디버깅/테스트용 훅 (내부 변환 함수 노출). 동작에는 영향 없음.
   window.__DORI__ = {
     toDoc: toDoc, fromDoc: fromDoc, sortByBase: sortByBase,
-    firebaseConfigured: firebaseConfigured, getWorkingData: getWorkingData
+    firebaseConfigured: firebaseConfigured, getWorkingData: getWorkingData,
+    isNarrow: isNarrow, setView: setView
   };
 
   if (document.readyState === "loading") {

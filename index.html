@@ -23,10 +23,16 @@
     </div>
   </header>
 
-  <!-- 네이버 키 미설정/로컬 미저장 안내 배너 -->
+  <!-- 키 미설정/연결 안내 배너 -->
   <div id="banner" class="banner" hidden></div>
 
-  <main class="layout wrap">
+  <!-- 모바일 전용 목록/지도 토글 -->
+  <div class="view-toggle" id="view-toggle">
+    <button type="button" data-view="list" class="active">📋 목록</button>
+    <button type="button" data-view="map">🗺️ 지도</button>
+  </div>
+
+  <main class="layout wrap" id="layout" data-view="list">
     <!-- 지도 -->
     <section class="map-pane">
       <div id="map" class="map"></div>
@@ -50,6 +56,9 @@
       <ul id="restaurant-list" class="restaurant-list"></ul>
     </section>
   </main>
+
+  <!-- 모바일 플로팅 추가 버튼 -->
+  <button id="fab" class="fab" type="button" aria-label="맛집 추가 / 평가">＋</button>
 
   <!-- 추가/평가 모달 -->
   <div id="modal" class="modal" hidden>

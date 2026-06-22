@@ -15,11 +15,12 @@
 window.DORI_DATA = {
   restaurants: [
     {
+      // 야시장512 (512야시장) — 중계동 512, 중계무지개아파트 2단지 상가 지하. 좌표는 근사값 → 사이트 "위치 찍기"로 보정 권장.
       id: "yasijang512",
       name: "야시장512",
-      address: "",                 // ← 정확한 주소를 넣어주세요
-      lat: null,                   // ← 위치 미설정: 지도에서 찍거나 좌표 입력
-      lng: null,
+      address: "서울 노원구 동일로208길 34 (중계동, 중계무지개아파트 2단지 상가 지하)",
+      lat: 37.6468,                // 중계무지개아파트 2단지 인근 근사 좌표
+      lng: 127.0746,
       status: "visited",
       needsLocationCheck: true,    // 위치 확인 필요 표시
       reviews: [

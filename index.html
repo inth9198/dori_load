@@ -71,12 +71,21 @@
       <form id="form" class="form">
         <input type="hidden" id="f-id" />
 
+        <div class="search-field">
+          <label for="f-search">🔍 장소 검색 <span class="small note">이름·주소로 찾으면 이름·주소·위치가 자동 입력돼요</span></label>
+          <div class="search-row">
+            <input type="text" id="f-search" placeholder="예: 야시장512 중계동 / 풍년닭도리탕 노원" autocomplete="off" />
+            <button type="button" id="search-btn" class="ghost-btn">검색</button>
+          </div>
+          <ul id="search-results" class="search-results" hidden></ul>
+        </div>
+
         <label>가게 이름 *
           <input type="text" id="f-name" required placeholder="예: 야시장512" />
         </label>
 
         <label>주소
-          <input type="text" id="f-address" placeholder="예: 서울 중구 세종대로14길 175" />
+          <input type="text" id="f-address" placeholder="예: 서울 노원구 동일로208길 34" />
         </label>
 
         <fieldset class="status-field">
@@ -133,8 +142,8 @@
       var key = window.CONFIG && window.CONFIG.KAKAO_JS_KEY;
       if (key && key !== "YOUR_KAKAO_JS_KEY") {
         var s = document.createElement("script");
-        // autoload=false → kakao.maps.load 콜백 안에서 초기화(로드 완료 보장)
-        s.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=" + encodeURIComponent(key) + "&autoload=false";
+        // autoload=false → kakao.maps.load 콜백 안에서 초기화. libraries=services → 장소 검색(Places) 사용.
+        s.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=" + encodeURIComponent(key) + "&autoload=false&libraries=services";
         s.onload = function () {
           window.kakao.maps.load(function () {
             window.__KAKAO_READY__ = true;

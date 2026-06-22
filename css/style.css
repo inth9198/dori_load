@@ -250,6 +250,26 @@ body { padding-bottom: env(safe-area-inset-bottom); }
 }
 .form input:focus, .form textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
 
+/* 장소 검색 */
+.search-field { display: flex; flex-direction: column; gap: 6px; }
+.search-field > label { font-size: 0.9rem; font-weight: 700; }
+.search-field .note { font-weight: 400; }
+.search-row { display: flex; gap: 8px; }
+.search-row input { flex: 1; font: inherit; font-size: 16px; padding: 12px 13px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); }
+.search-row input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
+.search-row #search-btn { flex-shrink: 0; }
+.search-results {
+  list-style: none; margin: 6px 0 0; padding: 4px; max-height: 240px; overflow-y: auto;
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: #fff; box-shadow: var(--sh-md);
+}
+.search-results .sr-item {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 11px; border-radius: 8px; cursor: pointer;
+}
+.search-results .sr-item:hover, .search-results .sr-item:active { background: var(--cream); }
+.search-results .sr-name { font-weight: 700; font-size: 0.92rem; }
+.search-results .sr-addr { font-size: 0.8rem; color: var(--ink-soft); }
+.search-results .sr-empty { padding: 12px; color: var(--muted); font-size: 0.85rem; text-align: center; }
+
 .status-field { border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 12px 13px; margin: 0; }
 .status-field legend { font-size: 0.85rem; font-weight: 700; padding: 0 6px; }
 .radio { flex-direction: row !important; align-items: center; gap: 7px; font-weight: 500 !important; font-size: 0.95rem; display: inline-flex; margin-right: 20px; }

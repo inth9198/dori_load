@@ -399,6 +399,7 @@
         : "저장하면 이 브라우저에 바로 반영돼요. 친구와 공유하려면 하단 \"커밋용 내보내기\"로 나온 내용을 <code>data/restaurants.js</code> 에 붙여넣고 push 하세요.";
     }
 
+    clearSearch();
     pickMode = false;
     document.getElementById("pick-hint").hidden = true;
     if (pickMarker) { pickMarker.setMap(null); pickMarker = null; }
@@ -450,6 +451,50 @@
     $modal.hidden = true;
     pickMode = false;
     if (pickMarker) { pickMarker.setMap(null); pickMarker = null; }
+  }
+
+  // ── 장소 검색 (카카오 Places) → 이름/주소/좌표 자동 입력 ──────
+  function clearSearch() {
+    var $s = document.getElementById("f-search");
+    var $res = document.getElementById("search-results");
+    if ($s) $s.value = "";
+    if ($res) { $res.hidden = true; $res.innerHTML = ""; }
+  }
+
+  function doPlaceSearch() {
+    var q = document.getElementById("f-search").value.trim();
+    var $res = document.getElementById("search-results");
+    if (!q) return;
+    if (!(window.kakao && kakao.maps && kakao.maps.services)) {
+      alert("장소 검색은 카카오 지도 키가 설정돼야 동작해요. (config의 KAKAO_JS_KEY)");
+      return;
+    }
+    var ps = new kakao.maps.services.Places();
+    ps.keywordSearch(q, function (data, status) {
+      $res.innerHTML = "";
+      if (status !== kakao.maps.services.Status.OK || !data.length) {
+        $res.innerHTML = '<li class="sr-empty">검색 결과가 없어요. 키워드를 바꿔보세요.</li>';
+        $res.hidden = false;
+        return;
+      }
+      data.slice(0, 8).forEach(function (p) {
+        var addr = p.road_address_name || p.address_name || "";
+        var li = document.createElement("li");
+        li.className = "sr-item";
+        li.innerHTML = '<span class="sr-name">' + escapeHtml(p.place_name) + "</span>" +
+          (addr ? '<span class="sr-addr">' + escapeHtml(addr) + "</span>" : "");
+        li.addEventListener("click", function () {
+          document.getElementById("f-name").value = p.place_name;
+          document.getElementById("f-address").value = addr;
+          document.getElementById("f-lat").value = parseFloat(p.y).toFixed(6);
+          document.getElementById("f-lng").value = parseFloat(p.x).toFixed(6);
+          $res.hidden = true;
+          $res.innerHTML = "";
+        });
+        $res.appendChild(li);
+      });
+      $res.hidden = false;
+    });
   }
 
   function slugify(name) {
@@ -729,6 +774,12 @@
         if (b) setView(b.dataset.view);
       });
     }
+
+    // 장소 검색
+    document.getElementById("search-btn").addEventListener("click", doPlaceSearch);
+    document.getElementById("f-search").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doPlaceSearch(); }
+    });
 
     // 모달 닫기
     Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (el) {

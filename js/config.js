@@ -14,7 +14,10 @@ window.CONFIG = {
   // 평가하는 두 사람. key는 데이터 식별용(고정), name은 화면 표시용(자유롭게 변경).
   reviewers: [
     { key: "minho",  name: "민호" },
-    { key: "friend", name: "완진" }
+    { key: "friend", name: "완진" },
+    { key: "friend", name: "원기" },
+    { key: "friend", name: "으롱" },
+    { key: "friend", name: "현석" }
   ],
 
   // 지도 첫 화면(마커가 없을 때의 기본값). 카카오맵은 level이 클수록 축소(전국≈13, 동네≈5).

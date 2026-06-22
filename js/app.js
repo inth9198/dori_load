@@ -12,6 +12,7 @@
     { key: "friend", name: "친구" }
   ];
   var LS_KEY = "dori_local_edits_v1";
+  var LS_DELETED = "dori_deleted_ids_v1";
 
   // DOM 참조
   var $list = document.getElementById("restaurant-list");
@@ -67,6 +68,22 @@
     }
   }
 
+  // 오프라인 모드에서 삭제한 가게 id 목록
+  function loadDeleted() {
+    try {
+      var s = localStorage.getItem(LS_DELETED);
+      return s ? JSON.parse(s) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveDeleted(ids) {
+    try {
+      localStorage.setItem(LS_DELETED, JSON.stringify(ids));
+    } catch (e) { /* 무시 */ }
+  }
+
   // base + edits 병합 → 화면에 쓰는 작업 데이터
   function getWorkingData() {
     // 온라인 모드면 Firestore 데이터가 진실의 원천
@@ -74,6 +91,7 @@
 
     var base = loadBase();
     var edits = loadEdits();
+    var deleted = loadDeleted();
     var byId = {};
     base.forEach(function (r) { byId[r.id] = r; });
     Object.keys(edits).forEach(function (id) { byId[id] = edits[id]; });
@@ -84,7 +102,7 @@
     Object.keys(edits).forEach(function (id) {
       if (!seen[id]) ordered.push(edits[id]);
     });
-    return ordered;
+    return ordered.filter(function (r) { return deleted.indexOf(r.id) < 0; });
   }
 
   // ── 별점 계산/렌더 ──────────────────────────────────────────
@@ -399,6 +417,9 @@
         : "저장하면 이 브라우저에 바로 반영돼요. 친구와 공유하려면 하단 \"커밋용 내보내기\"로 나온 내용을 <code>data/restaurants.js</code> 에 붙여넣고 push 하세요.";
     }
 
+    // 삭제 버튼은 기존 가게 수정일 때만 노출
+    document.getElementById("delete-btn").hidden = !existing;
+
     clearSearch();
     pickMode = false;
     document.getElementById("pick-hint").hidden = true;
@@ -451,6 +472,31 @@
     $modal.hidden = true;
     pickMode = false;
     if (pickMarker) { pickMarker.setMap(null); pickMarker = null; }
+  }
+
+  // 가게 삭제 (온라인: Firestore에서 / 오프라인: 로컬에서)
+  function deletePlace(id) {
+    if (!id) return;
+    var r = getById(id);
+    var name = r ? r.name : "이 가게";
+    if (!confirm('"' + name + '" 을(를) 삭제할까요? 되돌릴 수 없어요.')) return;
+
+    if (online && fb) {
+      fb.fs.deleteDoc(fb.fs.doc(fb.db, "places", id))
+        .then(function () { state.activeId = null; closeForm(); }) // 스냅샷이 다시 그림
+        .catch(function (e) { alert("삭제 실패: " + e.message); });
+      return;
+    }
+
+    // 오프라인: edits에서 제거 + 삭제 목록에 등록(base 가게도 가려짐)
+    var edits = loadEdits();
+    delete edits[id];
+    saveEdits(edits);
+    var deleted = loadDeleted();
+    if (deleted.indexOf(id) < 0) { deleted.push(id); saveDeleted(deleted); }
+    state.activeId = null;
+    closeForm();
+    render();
   }
 
   // ── 장소 검색 (카카오 Places) → 이름/주소/좌표 자동 입력 ──────
@@ -781,6 +827,11 @@
       if (e.key === "Enter") { e.preventDefault(); doPlaceSearch(); }
     });
 
+    // 삭제
+    document.getElementById("delete-btn").addEventListener("click", function () {
+      deletePlace(document.getElementById("f-id").value);
+    });
+
     // 모달 닫기
     Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (el) {
       el.addEventListener("click", closeForm);
@@ -821,6 +872,7 @@
     document.getElementById("reset-local").addEventListener("click", function () {
       if (!confirm("로컬에 저장한 변경을 모두 지우고 커밋된 데이터로 되돌릴까요?")) return;
       localStorage.removeItem(LS_KEY);
+      localStorage.removeItem(LS_DELETED);
       state.activeId = null;
       render();
     });

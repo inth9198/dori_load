@@ -297,6 +297,13 @@ body { padding-bottom: env(safe-area-inset-bottom); }
 .star-clear { font-size: 0.8rem; color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; padding: 6px; }
 
 .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+.delete-btn {
+  width: 100%; margin-top: 10px; padding: 12px; border-radius: var(--r-pill); cursor: pointer;
+  background: #fff; color: var(--red-dark); border: 1px solid #f0c5c1; font: inherit; font-weight: 700; font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+.delete-btn:hover { background: var(--red-soft); border-color: var(--red); }
+.delete-btn[hidden] { display: none; }
 .form-actions .primary-btn, .form-actions .ghost-btn { flex: 1; text-align: center; justify-content: center; }
 .note { color: var(--ink-soft); line-height: 1.5; }
 .small { font-size: 0.82rem; }

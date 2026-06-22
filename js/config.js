@@ -9,7 +9,7 @@ window.CONFIG = {
   // 카카오맵 JavaScript 키 (Kakao Developers에서 발급).
   // 발급 전에는 "YOUR_KAKAO_JS_KEY" 그대로 두면 지도 자리에 안내가 뜹니다.
   // 발급 + 도메인 등록 방법은 README.md 참고. (도메인 등록 필수!)
-  KAKAO_JS_KEY: "YOUR_KAKAO_JS_KEY",
+  KAKAO_JS_KEY: "937ab0bb4632668cd19075e51c071170",
 
   // 평가하는 두 사람. key는 데이터 식별용(고정), name은 화면 표시용(자유롭게 변경).
   reviewers: [

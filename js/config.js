@@ -15,9 +15,9 @@ window.CONFIG = {
   reviewers: [
     { key: "minho",  name: "민호" },
     { key: "friend", name: "완진" },
-    { key: "friend", name: "원기" },
-    { key: "friend", name: "으롱" },
-    { key: "friend", name: "현석" }
+    { key: "friend1", name: "원기" },
+    { key: "friend2", name: "으롱" },
+    { key: "friend3", name: "현석" }
   ],
 
   // 지도 첫 화면(마커가 없을 때의 기본값). 카카오맵은 level이 클수록 축소(전국≈13, 동네≈5).

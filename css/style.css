@@ -113,6 +113,8 @@ body { padding-bottom: env(safe-area-inset-bottom); }
   text-align: center; gap: 6px; background: var(--cream);
   border: 2px dashed var(--line-strong); border-radius: var(--r-md); color: var(--ink-soft); padding: 24px;
 }
+/* hidden 속성이 display:flex 를 이기도록 (브라우저 기본 [hidden]{display:none}이 위 규칙에 가려지는 문제 방지) */
+.map-placeholder[hidden] { display: none; }
 .map-placeholder code { background: #fff; padding: 2px 7px; border-radius: 6px; color: var(--red-dark); }
 
 /* ── Toolbar / filters ── */
